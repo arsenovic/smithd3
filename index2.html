@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>SmithD3</title>
+        
+        <style type="text/css">
+            
+        </style>
+    	<script src="d3/d3.js" type="text/javascript"></script>
+    	<script src="js/math.js"  type="text/javascript"></script>
+    </head>
+    <body>
+    
+        <script type="text/javascript">
+
+            
+            
+            
+                
+                
+            ////////// draw the dang chart /////////////
+            
+            // smith chart options
+            var chart_r = 1
+            var chartType = 'z'// 'z' or 'y' 
+            var strokeWidth = 2
+            // svg options
+            var pad = 20 
+            var width = 500 
+            var height = width
+            var ZERO = 1e-5
+            // these need to be dynamic based on a zoom level
+            var rValues =[0, 0.2, 0.5,1, 2.0, 5.0 ]
+            var xValues = [ 0.2, 0.5, 1, 2.0 , 5.0,-0.2, -0.5,-1,  -2.0, -5.0 ]
+            
+            xyScale = d3.scale.linear()
+                            .domain([-chart_r, chart_r])
+                            .range([pad, width-pad]);
+            rScale = d3.scale.linear()
+                            .domain([0, chart_r])
+                            .range([0, (width-2*pad)/2]); 
+            
+            ////////// objects ///////////////////////
+            
+            // circles of constant Resistance 
+            var rCircle = function(r, flipme){
+                this.r = r 
+                this.flipme = flipme
+                };
+            rCircle.prototype.cx = function(){
+                return xyScale(this.r/(1+this.r)*this.flipme)};
+            rCircle.prototype.cy = function(){
+                return xyScale(0)};
+            rCircle.prototype.radius = function(){
+                return rScale(1/(1+this.r))};
+            
+            // circles of constant Reactance  
+            var xCircle = function(x, flipme){
+                if (x==0){x =ZERO};
+                this.x = x 
+                this.flipme = flipme
+                };
+            xCircle.prototype.cx = function(){
+                return xyScale(1*this.flipme)};
+            xCircle.prototype.cy = function(){
+                return xyScale(1/this.x)};
+            xCircle.prototype.radius = function(){
+                return rScale(Math.abs(1/this.x))};
+            
+            //////// RF-functions //////////////////////
+            
+            // conversion functions (TODO: need complex type )    
+            //var z2s= function(z,z0){
+                //return (z-z0)/(z+z0)};
+            
+            //var s2z= function(s,z0){
+                //return z0*(1-s)/(1+s)};
+            
+            
+            var flipme = 1 
+            if (chartType == 'y'){flipme = -1};
+            
+            
+            rCircles = rValues.map(function(d){return new rCircle(d,1)})
+            xCircles = xValues.map(function(d){return new xCircle(d,1)})
+                
+            var svg = d3.select("body").append('svg')
+      
+            svg.attr('width',width)
+                .attr('height',height)
+                .attr('fill', 'rgba(0,0,0,0)')
+                .attr('stroke','black')
+                .attr('stroke-width',strokeWidth);
+            
+			
+            svg.selectAll('circle.x')
+                .data(xCircles)
+                .enter()
+                .append('circle')							 
+                .attr('class','x')
+                .attr('stroke','grey')
+                .attr('cx',function(d){return d.cx()})
+                .attr('cy',function(d){return d.cy()})
+                .attr('r',function(d){return d.radius()});
+                
+			svg.selectAll('circle.r')
+                .data(rCircles)
+                .enter()
+                .append('circle')							 
+                .attr('class','r')
+                .attr('stroke','grey')
+                .attr('cx',function(d){return d.cx()})
+                .attr('cy',function(d){return d.cy()})
+                .attr('r',function(d){return d.radius()});
+            
+            clipCircle = new rCircle(0,1)
+            svg.append('clipPath')
+				.attr('id','chart-area')
+				.append('circle')
+				.attr('cx',clipCircle.cx())
+				.attr('cy',clipCircle.cy())
+				.attr('r',clipCircle.radius()+strokeWidth/2);   
+            
+            svg.selectAll(['.x','.r'])
+				.attr("clip-path", "url(#chart-area)")
+        </script>
+    </body>
+</html>
