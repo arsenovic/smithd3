@@ -8,17 +8,11 @@
             
         </style>
     	<script src="d3/d3.js" type="text/javascript"></script>
-    	<script src="js/math.js"  type="text/javascript"></script>
+    	<!--<script src="js/smith.js"  type="text/javascript"></script>-->
     </head>
     <body>
     
-        <script type="text/javascript">
-
-            
-            
-            
-                
-                
+        <script type="text/javascript">  
             ////////// draw the dang chart /////////////
             
             // smith chart options
@@ -31,7 +25,7 @@
             var height = width
             var ZERO = 1e-5
             // these need to be dynamic based on a zoom level
-            var rValues =[0, 0.2, 0.5,1, 2.0, 5.0 ]
+            var rValues = [0, 0.2, 0.5,1, 2.0, 5.0 ]
             var xValues = [ 0.2, 0.5, 1, 2.0 , 5.0,-0.2, -0.5,-1,  -2.0, -5.0 ]
             
             xyScale = d3.scale.linear()

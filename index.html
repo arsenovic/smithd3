@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <title>D3 Test</title>
-        <script type="text/javascript" src="d3/d3.js"></script>
+        
         <style type="text/css">
 			div.bar {
 				display: inline-block;
@@ -13,19 +13,21 @@
 				background-color: teal;
 			}
 		</style>
+    	<script src="d3/d3.js"></script>
     </head>
     <body>
+    
         <script type="text/javascript">
         	
-        	// smith chart otions
+        	// smith chart options
         	var chart_r = 1
         	var chartType = 'z'// 'z' or 'y' 
-        	var strokeWidth = 1.5
+        	var strokeWidth = 2
         	// svg options
         	var pad = 20 
-        	var width = 300 
+        	var width = 500 
         	var height = width
-        	
+        	var ZERO = 1e-5
         	// these need to be dynamic based on a zoom level
 			var rHeavy = [0,1];
 			var xHeavy = [1,-1];
@@ -56,9 +58,11 @@
 						return xyScale(1*flipme)
 						};
 			Xcy = function(x){
+                        if (x==0){x =ZERO};
 						return xyScale(1/x)
 						};
 			Xr = function(x){
+                        if (x==0){x =ZERO};
 						return rScale(Math.abs(1/x))
 						};
 			
@@ -70,21 +74,17 @@
 				.attr('fill', 'rgba(0,0,0,0)')
 				.attr('stroke','black')
 				.attr('stroke-width',strokeWidth);
-
-			
             
-			
-				
-			
-			var rLightCircles = svg.selectAll('circle.rLight')
-							 .data(rLight)
-							 .enter()
-							 .append('circle')
-							 .attr('class','r Light')
-							 .attr('stroke','grey')
-							 .attr('cx',Rcx)
-				     	 	 .attr('cy',Rcy)
-				     	 	 .attr('r',Rr);
+            
+            var rLightCircles = svg.selectAll('circle.rLight')
+                     .data(rLight)
+                     .enter()
+                     .append('circle')
+                     .attr('class','r Light')
+                     .attr('stroke','grey')
+                     .attr('cx',Rcx)
+                     .attr('cy',Rcy)
+                     .attr('r',Rr);
 
 							     
 			
@@ -97,7 +97,6 @@
 							 .attr('cx',Xcx)
 							 .attr('cy',Xcy)
 						     .attr('r',Xr);
-			
 			var rHeavyCircles = svg.selectAll('circle.rHeavy')
 							 .data(rHeavy)
 							 .enter()
@@ -119,42 +118,81 @@
 							 .attr('cx',Xcx)
 							 .attr('cy',Xcy)
 						     .attr('r',Xr);
+            
+			
+				
+			
+			
+			
+			
 
 			svg.append('clipPath')
 				.attr('id','chart-area')
 				.append('circle')
 				.attr('cx',Rcx(0))
 				.attr('cy',Rcy(0))
-				.attr('r',rScale(1));
+				.attr('r',rScale(1)+strokeWidth/2);
 			
 			svg.selectAll(['.x','.r'])
 				.attr("clip-path", "url(#chart-area)")
+                .on('click',function(d){
+                    chart_r = chart_r *.9
+                    zoom(chart_r)
+                    })
+            svg.selectAll(['.x','.r'])
+                .on('mouseover', function(d){
+                    d3.select(this)
+                        .attr('stroke','red') 
+                        })
+                .on('mouseout', function(d){
+                    d3.select(this)
+                        .transition()
+                        .duration(1000)
+                        .attr('stroke','grey')
+                        })
+                        
+            var zoom = function(chart_r){
+                
+                xyScale = d3.scale.linear()
+                        .domain([-chart_r, chart_r])
+                        .range([pad, width-pad]);
+                rScale = d3.scale.linear()
+                        .domain([0, chart_r])
+                        .range([0, (width-2*pad)/2]); 
+                
+                svg.selectAll('.r')
+                         .transition()
+                         .attr('cx',Rcx)
+                         .attr('cy',Rcy)
+                         .attr('r',Rr);
+                svg.selectAll('.x')
+                         .transition()
+                         .attr('cx',Xcx)
+                         .attr('cy',Xcy)
+                         .attr('r',Xr);
+                
+                }
+            
+           
+				
+            var add_rLight = function(r){
+                rLight.push(r)
+                rLightCircles = rLightCircles.data(rLight)
+                rLightCircles
+                    .enter()
+                    .append('circle')
+                    .attr('class','r Light')
+                    .attr('stroke','grey')
+                    .attr('cx',Rcx)
+                    .attr('cy',Rcy)
+                    .attr('r',Rr)
+                    .attr("clip-path", "url(#chart-area)");
+                };
+         
+                
 			
-			d3.select('body')
-				.append('p')
-				.text('here')
-				.on('click',function(){
-					
-
-					chart_r= 2
-					xyScale = d3.scale.linear()
-					        .domain([-chart_r, chart_r])
-					        .range([pad, width-pad]);
-					rScale = d3.scale.linear()
-					        .domain([0, chart_r])
-					        .range([0, (width-2*pad)/2]); 
-					
-					svg.selectAll('.r')
-							 .transition()
-							 .attr('cx',Rcx)
-				     	 	 .attr('cy',Rcy)
-				     	 	 .attr('r',Rr);
-					svg.selectAll('.x')
-							 .transition()
-							 .attr('cx',Xcx)
-				     	 	 .attr('cy',Xcy)
-				     	 	 .attr('r',Xr);
-					})
+                
+                
         </script>
     </body>
 </html>
