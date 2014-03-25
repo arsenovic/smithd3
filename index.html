@@ -5,15 +5,10 @@
         <title>D3 Test</title>
         
         <style type="text/css">
-			div.bar {
-				display: inline-block;
-				width: 20px;
-				height: 75px;	/* Gets overriden by D3-assigned height below */
-				margin-right: 2px;
-				background-color: teal;
-			}
+			
 		</style>
     	<script src="d3/d3.js"></script>
+        <script src="http://d3js.org/d3.v3.min.js"></script>
     </head>
     <body>
     
@@ -28,23 +23,24 @@
         	var width = 500 
         	var height = width
         	var ZERO = 1e-5
-        	// these need to be dynamic based on a zoom level
-			var rHeavy = [0,1];
-			var xHeavy = [1,-1];
-        	var rLight =[ 0.2, 0.5, 2.0, 5.0 ]
-			var xLight = [ 0.2, 0.5,  2.0 , 5.0, -0.2, -0.5,  -2.0, -5.0 ]
+        	
+            
+        	var r =[ 0,1,0.2, 0.5, 2.0, 5.0 ]
+			var x = [ 1,-1,0.2, 0.5,  2.0 , 5.0, -0.2, -0.5,  -2.0, -5.0 ]
 			
 			xyScale = d3.scale.linear()
 					        .domain([-chart_r, chart_r])
 					        .range([pad, width-pad]);
-			rScale = d3.scale.linear()
+			
+            rScale = d3.scale.linear()
 					        .domain([0, chart_r])
 					        .range([0, (width-2*pad)/2]); 
 			
 			var flipme = 1 
 			if (chartType == 'y'){flipme = -1};
 				
-			
+
+            
 			Rcx = function(r){
 						return xyScale(r/(1+r)*flipme)
 						};
@@ -69,63 +65,13 @@
 				
             var svg = d3.select("body").append('svg')
       
-           	svg.attr('width',width)
+			svg.attr('width',width)
 				.attr('height',height)
 				.attr('fill', 'rgba(0,0,0,0)')
 				.attr('stroke','black')
 				.attr('stroke-width',strokeWidth);
             
             
-            var rLightCircles = svg.selectAll('circle.rLight')
-                     .data(rLight)
-                     .enter()
-                     .append('circle')
-                     .attr('class','r Light')
-                     .attr('stroke','grey')
-                     .attr('cx',Rcx)
-                     .attr('cy',Rcy)
-                     .attr('r',Rr);
-
-							     
-			
-			var xLightCircles = svg.selectAll('circle.xLight')
-							 .data(xLight)
-							 .enter()
-							 .append('circle')							 
-							 .attr('class','x Light')
-							 .attr('stroke','grey')
-							 .attr('cx',Xcx)
-							 .attr('cy',Xcy)
-						     .attr('r',Xr);
-			var rHeavyCircles = svg.selectAll('circle.rHeavy')
-							 .data(rHeavy)
-							 .enter()
-							 .append('circle')
-							 .attr('class','r Heavy')
-							 .attr('stroke','black')
-							 .attr('cx',Rcx)
-				     	 	 .attr('cy',Rcy)
-				     	 	 .attr('r',Rr);
-
-							     
-			
-			var xHeavyCircles = svg.selectAll('circle.xHeavy')
-							 .data(xHeavy)
-							 .enter()
-							 .append('circle')
-							 .attr('class','x Heavy')
-							 .attr('stroke','black')
-							 .attr('cx',Xcx)
-							 .attr('cy',Xcy)
-						     .attr('r',Xr);
-            
-			
-				
-			
-			
-			
-			
-
 			svg.append('clipPath')
 				.attr('id','chart-area')
 				.append('circle')
@@ -133,23 +79,38 @@
 				.attr('cy',Rcy(0))
 				.attr('r',rScale(1)+strokeWidth/2);
 			
+            var rCircles = svg.selectAll('circle.r')
+                     .data(r)
+                     .enter()
+                     .append('circle')
+                     .attr('class','r')
+                     .attr('stroke','grey')
+                     .attr('cx',Rcx)
+                     .attr('cy',Rcy)
+                     .attr('r',Rr);
+
+							     
+			
+			var xCircles = svg.selectAll('circle.x')
+							 .data(x)
+							 .enter()
+							 .append('circle')							 
+							 .attr('class','x')
+							 .attr('stroke','grey')
+							 .attr('cx',Xcx)
+							 .attr('cy',Xcy)
+						     .attr('r',Xr);
+			
+			
+
+
 			svg.selectAll(['.x','.r'])
 				.attr("clip-path", "url(#chart-area)")
                 .on('click',function(d){
                     chart_r = chart_r *.9
                     zoom(chart_r)
                     })
-            svg.selectAll(['.x','.r'])
-                .on('mouseover', function(d){
-                    d3.select(this)
-                        .attr('stroke','red') 
-                        })
-                .on('mouseout', function(d){
-                    d3.select(this)
-                        .transition()
-                        .duration(1000)
-                        .attr('stroke','grey')
-                        })
+            
                         
             var zoom = function(chart_r){
                 
@@ -175,24 +136,10 @@
             
            
 				
-            var add_rLight = function(r){
-                rLight.push(r)
-                rLightCircles = rLightCircles.data(rLight)
-                rLightCircles
-                    .enter()
-                    .append('circle')
-                    .attr('class','r Light')
-                    .attr('stroke','grey')
-                    .attr('cx',Rcx)
-                    .attr('cy',Rcy)
-                    .attr('r',Rr)
-                    .attr("clip-path", "url(#chart-area)");
-                };
-         
-                
+
 			
                 
                 
-        </script>
+            </script>
     </body>
 </html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>SmithD3</title>
+        
+        <style type="text/css">
+            
+        </style>
+    	<script src="d3/d3.js" type="text/javascript"></script>
+        <script src="js/smith2.js"  type="text/javascript"></script>
+    </head>
+    <body>
+    
+        <script type="text/javascript">  
+            ////////// draw the dang chart /////////////
+            
+            var svg = d3.select("body").append('svg')
+            chart = new smith.chart()
+            //s = new smith()
+            chart.radius = 3
+            chart.draw(svg)
+        </script>
+    </body>
+</html>

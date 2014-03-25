@@ -23,10 +23,10 @@ smith.chart = function(){
   
   //\\this.rCircles = this.rValues.map(function(d){return new this.rCircle(d,1)})
   this.xCircles = this.xValues.map(function(d){
-    return new smith.xCircle(d,this.flipme)})
+    return new smith.xCircle(d,1)}) // TODO change 1 to this.flipme
     
   this.rCircles = this.rValues.map(function(d){
-    return new smith.rCircle(d,1)})
+    return new smith.rCircle(d,1)})// TODO change 1 to this.flipme
     }
   
   
@@ -43,10 +43,9 @@ smith.chart.prototype.rScale = function (){
 
 
   // circles of constant Resistance 
-smith.rCircle = function(R, s){
+smith.rCircle = function(R, flipme){
   this.R = R 
-  this.flipme=s
-  this.s = s
+  this.flipme=flipme
   };
 smith.rCircle.prototype.x = function(){
       return this.R/(1+this.R)*this.flipme};
@@ -70,6 +69,23 @@ smith.xCircle.prototype.r = function(){
       return (Math.abs(1/this.X))};
 
     
+    
+    
+
+  
+    
+
+//////// RF-functions //////////////////////
+
+// conversion functions (TODO: need complex type )    
+//var z2s= function(z,z0){
+    //return (z-z0)/(z+z0)};
+
+//var s2z= function(s,z0){
+    //return z0*(1-s)/(1+s)};
+
+
+
 
 
 
@@ -88,30 +104,30 @@ smith.chart.prototype.draw = function(svg){
         .append('circle')							 
         .attr('class','x')
         .attr('stroke','grey')
-        .attr('cx',function(d){return d.cx()})
-        .attr('cy',function(d){return d.cy()})
-        .attr('r',function(d){return d.radius()});
+        .attr('cx',function(d){return this.xyScale()(d.x())})
+        .attr('cy',function(d){return d.y()})
+        .attr('r',function(d){return d.r()});
         
-    svg.selectAll('circle.r')
-        .data(this.rCircles)
-        .enter()
-        .append('circle')							 
-        .attr('class','r')
-        .attr('stroke','grey')
-        .attr('cx',function(d){return d.cx()})
-        .attr('cy',function(d){return d.cy()})
-        .attr('r',function(d){return d.radius()});
+    //svg.selectAll('circle.r')
+        //.data(this.rCircles)
+        //.enter()
+        //.append('circle')							 
+        //.attr('class','r')
+        //.attr('stroke','grey')
+        //.attr('cx',function(d){return d.cx()})
+        //.attr('cy',function(d){return d.cy()})
+        //.attr('r',function(d){return d.radius()});
     
-    clipCircle = new rCircle(0,1)
-    svg.append('clipPath')
-        .attr('id','chart-area')
-        .append('circle')
-        .attr('cx',clipCircle.cx())
-        .attr('cy',clipCircle.cy())
-        .attr('r',clipCircle.radius()+this.strokeWidth/2);   
+    //clipCircle = new rCircle(0,1)
+    //svg.append('clipPath')
+        //.attr('id','chart-area')
+        //.append('circle')
+        //.attr('cx',clipCircle.cx())
+        //.attr('cy',clipCircle.cy())
+        //.attr('r',clipCircle.radius()+this.strokeWidth/2);   
     
-    svg.selectAll(['.x','.r'])
-        .attr("clip-path", "url(#chart-area)")
+    //svg.selectAll(['.x','.r'])
+        //.attr("clip-path", "url(#chart-area)")
     };
 
 
