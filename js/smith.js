@@ -5,7 +5,7 @@ var smith = {
 smith.chart = function(){  
   // smith chart options
   this.radius = 1
-  var chartType = 'z'// 'z' or 'y' 
+  this.type = 'z'// 'z' or 'y' 
   this.strokeWidth = 2
   // svg options
   var pad = 20 
@@ -14,30 +14,10 @@ smith.chart = function(){
   var ZERO = 1e-5
   
   
-  var r =[ 0,1,0.2, 0.5, 2.0, 5.0 ]
-  var x = [ 1,-1,0.2, 0.5,  2.0 , 5.0, -0.2, -0.5,  -2.0, -5.0 ]
+  this.r =[ 0,1,0.2, 0.5, 2.0, 5.0 ]
+  this.x = [ 1,-1,0.2, 0.5,  2.0 , 5.0, -0.2, -0.5,  -2.0, -5.0 ]
 
-  smith.chart.prototype.zoom = function(radius){
-  
-  xyScale = d3.scale.linear()
-      .domain([-radius, radius])
-      .range([pad, width-pad]);
-  rScale = d3.scale.linear()
-      .domain([0, radius])
-      .range([0, (width-2*pad)/2]); 
-  
-  svg.selectAll('.r')
-       .transition()
-       .attr('cx',Rcx)
-       .attr('cy',Rcy)
-       .attr('r',Rr);
-  svg.selectAll('.x')
-       .transition()
-       .attr('cx',Xcx)
-       .attr('cy',Xcy)
-       .attr('r',Xr);
-
-  }
+  // draw the smith chart on the given svg
   smith.chart.prototype.draw = function(svg){  
     xyScale = d3.scale.linear()
             .domain([-this.radius, this.radius])
@@ -48,7 +28,7 @@ smith.chart = function(){
             .range([0, (width-2*pad)/2]); 
     
     var flipme = 1 
-    if (chartType == 'y'){flipme = -1};
+    if (this.type == 'y'){flipme = -1};
     
     
     
@@ -88,7 +68,7 @@ smith.chart = function(){
       .attr('r',rScale(this.radius)+this.strokeWidth/2);
     
     var rCircles = svg.selectAll('circle.r')
-                       .data(r)
+                       .data(this.r)
                        .enter()
                        .append('circle')
                        .attr('class','r')
@@ -100,7 +80,7 @@ smith.chart = function(){
                  
     
     var xCircles = svg.selectAll('circle.x')
-                       .data(x)
+                       .data(this.x)
                        .enter()
                        .append('circle')							 
                        .attr('class','x')
@@ -108,9 +88,52 @@ smith.chart = function(){
                        .attr('cx',Xcx)
                        .attr('cy',Xcy)
                        .attr('r',Xr);
+  
+    svg.selectAll(['.x','.r'])
+				.attr("clip-path", "url(#chart-area)")
     
+   
+        
   }
       
+  smith.chart.prototype.zoom = function(radius){
+    xyScale = d3.scale.linear()
+        .domain([-radius, radius])
+        .range([pad, width-pad]);
+    rScale = d3.scale.linear()
+        .domain([0, radius])
+        .range([0, (width-2*pad)/2]); 
+    Rcx = function(r){
+        return xyScale(r/(1+r)*flipme)
+        };
+    Rcy = function(r){
+        return xyScale(0)
+        };
+    Rr = function(r){
+        return rScale(1/(1+r))
+        };
+    Xcx = function(x){
+        return xyScale(1*flipme)
+        };
+    Xcy = function(x){
+        if (x==0){x =ZERO};
+        return xyScale(1/x)
+        };
+    Xr = function(x){
+        if (x==0){x =ZERO};
+        return rScale(Math.abs(1/x))
+        };
+    svg.selectAll('.r')
+         .transition()
+         .attr('cx',Rcx)
+         .attr('cy',Rcy)
+         .attr('r',Rr);
+    svg.selectAll('.x')
+         .transition()
+         .attr('cx',Xcx)
+         .attr('cy',Xcy)
+         .attr('r',Xr);
 
+  }
 }
 
