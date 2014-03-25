@@ -2,132 +2,115 @@
 var smith = {
   version: "0.1"
   }
-  
-smith.chart = function(){
+smith.chart = function(){  
   // smith chart options
   this.radius = 1
-  this.type = 'z'// 'z' or 'y' 
-  this.flipme = 1 
-  if (this.type == 'y'){this.flipme = -1}
-  
-  
+  var chartType = 'z'// 'z' or 'y' 
   this.strokeWidth = 2
   // svg options
-  this.pad = 20 
-  this.width = 500 
-  this.height = this.width
-  this.ZERO = 1e-5
-  // these need to be dynamic based on a zoom level
-  this.rValues =[0, 0.2, 0.5,1, 2.0, 5.0 ]
-  this.xValues = [ 0.2, 0.5, 1, 2.0 , 5.0,-0.2, -0.5,-1,  -2.0, -5.0 ]
-  
-  //\\this.rCircles = this.rValues.map(function(d){return new this.rCircle(d,1)})
-  this.xCircles = this.xValues.map(function(d){
-    return new smith.xCircle(d,1)}) // TODO change 1 to this.flipme
-    
-  this.rCircles = this.rValues.map(function(d){
-    return new smith.rCircle(d,1)})// TODO change 1 to this.flipme
-    }
+  var pad = 20 
+  var width = 500 
+  var height = width
+  var ZERO = 1e-5
   
   
-smith.chart.prototype.xyScale = function (){
-  return d3.scale.linear()
-           .domain([-this.radius, this.radius])
-           .range([this.pad, this.width-this.pad]);
-  };
-smith.chart.prototype.rScale = function (){
-  return d3.scale.linear()
-           .domain([0, this.radius])
-           .range([0, (this.width-2*this.pad)/2]);
-      }; 
+  var r =[ 0,1,0.2, 0.5, 2.0, 5.0 ]
+  var x = [ 1,-1,0.2, 0.5,  2.0 , 5.0, -0.2, -0.5,  -2.0, -5.0 ]
 
-
-  // circles of constant Resistance 
-smith.rCircle = function(R, flipme){
-  this.R = R 
-  this.flipme=flipme
-  };
-smith.rCircle.prototype.x = function(){
-      return this.R/(1+this.R)*this.flipme};
-
-smith.rCircle.prototype.y = function(){
-      return 0};
-
-smith.rCircle.prototype.r = function(){
-      return 1/(1+this.R)};
-
-  // circles of constant Reactance  
-smith.xCircle = function(X, flipme){
-  this.X = X
-  this.flipme=flipme
-  };    
-smith.xCircle.prototype.x = function(){
-      return (1*this.flipme)};
-smith.xCircle.prototype.y = function(){
-      return (1/this.X)};
-smith.xCircle.prototype.r = function(){
-      return (Math.abs(1/this.X))};
-
-    
-    
-    
-
+  smith.chart.prototype.zoom = function(radius){
   
+  xyScale = d3.scale.linear()
+      .domain([-radius, radius])
+      .range([pad, width-pad]);
+  rScale = d3.scale.linear()
+      .domain([0, radius])
+      .range([0, (width-2*pad)/2]); 
+  
+  svg.selectAll('.r')
+       .transition()
+       .attr('cx',Rcx)
+       .attr('cy',Rcy)
+       .attr('r',Rr);
+  svg.selectAll('.x')
+       .transition()
+       .attr('cx',Xcx)
+       .attr('cy',Xcy)
+       .attr('r',Xr);
+
+  }
+  smith.chart.prototype.draw = function(svg){  
+    xyScale = d3.scale.linear()
+            .domain([-this.radius, this.radius])
+            .range([pad, width-pad]);
     
-
-//////// RF-functions //////////////////////
-
-// conversion functions (TODO: need complex type )    
-//var z2s= function(z,z0){
-    //return (z-z0)/(z+z0)};
-
-//var s2z= function(s,z0){
-    //return z0*(1-s)/(1+s)};
-
-
-
-
-
-
-smith.chart.prototype.draw = function(svg){    
+    rScale = d3.scale.linear()
+            .domain([0, this.radius])
+            .range([0, (width-2*pad)/2]); 
     
-    svg.attr('width',this.width)
-        .attr('height',this.height)
-        .attr('fill', 'rgba(0,0,0,0)')
-        .attr('stroke','black')
-        .attr('stroke-width',this.strokeWidth);
+    var flipme = 1 
+    if (chartType == 'y'){flipme = -1};
     
     
-    svg.selectAll('circle.x')
-        .data(this.xCircles)
-        .enter()
-        .append('circle')							 
-        .attr('class','x')
-        .attr('stroke','grey')
-        .attr('cx',function(d){return this.xyScale()(d.x())})
-        .attr('cy',function(d){return d.y()})
-        .attr('r',function(d){return d.r()});
+    
+    Rcx = function(r){
+        return xyScale(r/(1+r)*flipme)
+        };
+    Rcy = function(r){
+        return xyScale(0)
+        };
+    Rr = function(r){
+        return rScale(1/(1+r))
+        };
+    Xcx = function(x){
+        return xyScale(1*flipme)
+        };
+    Xcy = function(x){
+        if (x==0){x =ZERO};
+        return xyScale(1/x)
+        };
+    Xr = function(x){
+        if (x==0){x =ZERO};
+        return rScale(Math.abs(1/x))
+        };
+    
+    svg.attr('width',width)
+      .attr('height',height)
+      .attr('fill', 'rgba(0,0,0,0)')
+      .attr('stroke','black')
+      .attr('stroke-width',this.strokeWidth);
         
-    //svg.selectAll('circle.r')
-        //.data(this.rCircles)
-        //.enter()
-        //.append('circle')							 
-        //.attr('class','r')
-        //.attr('stroke','grey')
-        //.attr('cx',function(d){return d.cx()})
-        //.attr('cy',function(d){return d.cy()})
-        //.attr('r',function(d){return d.radius()});
+        
+    svg.append('clipPath')
+      .attr('id','chart-area')
+      .append('circle')
+      .attr('cx',Rcx(0))
+      .attr('cy',Rcy(0))
+      .attr('r',rScale(this.radius)+this.strokeWidth/2);
     
-    //clipCircle = new rCircle(0,1)
-    //svg.append('clipPath')
-        //.attr('id','chart-area')
-        //.append('circle')
-        //.attr('cx',clipCircle.cx())
-        //.attr('cy',clipCircle.cy())
-        //.attr('r',clipCircle.radius()+this.strokeWidth/2);   
+    var rCircles = svg.selectAll('circle.r')
+                       .data(r)
+                       .enter()
+                       .append('circle')
+                       .attr('class','r')
+                       .attr('stroke','grey')
+                       .attr('cx',Rcx)
+                       .attr('cy',Rcy)
+                       .attr('r',Rr);
     
-    //svg.selectAll(['.x','.r'])
-        //.attr("clip-path", "url(#chart-area)")
-    };
+                 
+    
+    var xCircles = svg.selectAll('circle.x')
+                       .data(x)
+                       .enter()
+                       .append('circle')							 
+                       .attr('class','x')
+                       .attr('stroke','grey')
+                       .attr('cx',Xcx)
+                       .attr('cy',Xcy)
+                       .attr('r',Xr);
+    
+  }
+      
 
+}
 

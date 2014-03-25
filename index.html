@@ -2,144 +2,24 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>D3 Test</title>
+        <title>SmithD3</title>
         
         <style type="text/css">
-			
-		</style>
-    	<script src="d3/d3.js"></script>
-        <script src="http://d3js.org/d3.v3.min.js"></script>
+            
+        </style>
+    	<script src="d3/d3.js" type="text/javascript"></script>
+        <script src="js/smith2.js"  type="text/javascript"></script>
     </head>
     <body>
     
-        <script type="text/javascript">
-        	
-        	// smith chart options
-        	var chart_r = 1
-        	var chartType = 'z'// 'z' or 'y' 
-        	var strokeWidth = 2
-        	// svg options
-        	var pad = 20 
-        	var width = 500 
-        	var height = width
-        	var ZERO = 1e-5
-        	
+        <script type="text/javascript">  
+            ////////// draw the dang chart /////////////
             
-        	var r =[ 0,1,0.2, 0.5, 2.0, 5.0 ]
-			var x = [ 1,-1,0.2, 0.5,  2.0 , 5.0, -0.2, -0.5,  -2.0, -5.0 ]
-			
-			xyScale = d3.scale.linear()
-					        .domain([-chart_r, chart_r])
-					        .range([pad, width-pad]);
-			
-            rScale = d3.scale.linear()
-					        .domain([0, chart_r])
-					        .range([0, (width-2*pad)/2]); 
-			
-			var flipme = 1 
-			if (chartType == 'y'){flipme = -1};
-				
-
-            
-			Rcx = function(r){
-						return xyScale(r/(1+r)*flipme)
-						};
-			Rcy = function(r){
-						return xyScale(0)
-						};
-			Rr = function(r){
-						return rScale(1/(1+r))
-						};
-			Xcx = function(x){
-						return xyScale(1*flipme)
-						};
-			Xcy = function(x){
-                        if (x==0){x =ZERO};
-						return xyScale(1/x)
-						};
-			Xr = function(x){
-                        if (x==0){x =ZERO};
-						return rScale(Math.abs(1/x))
-						};
-			
-				
             var svg = d3.select("body").append('svg')
-      
-			svg.attr('width',width)
-				.attr('height',height)
-				.attr('fill', 'rgba(0,0,0,0)')
-				.attr('stroke','black')
-				.attr('stroke-width',strokeWidth);
-            
-            
-			svg.append('clipPath')
-				.attr('id','chart-area')
-				.append('circle')
-				.attr('cx',Rcx(0))
-				.attr('cy',Rcy(0))
-				.attr('r',rScale(1)+strokeWidth/2);
-			
-            var rCircles = svg.selectAll('circle.r')
-                     .data(r)
-                     .enter()
-                     .append('circle')
-                     .attr('class','r')
-                     .attr('stroke','grey')
-                     .attr('cx',Rcx)
-                     .attr('cy',Rcy)
-                     .attr('r',Rr);
-
-							     
-			
-			var xCircles = svg.selectAll('circle.x')
-							 .data(x)
-							 .enter()
-							 .append('circle')							 
-							 .attr('class','x')
-							 .attr('stroke','grey')
-							 .attr('cx',Xcx)
-							 .attr('cy',Xcy)
-						     .attr('r',Xr);
-			
-			
-
-
-			svg.selectAll(['.x','.r'])
-				.attr("clip-path", "url(#chart-area)")
-                .on('click',function(d){
-                    chart_r = chart_r *.9
-                    zoom(chart_r)
-                    })
-            
-                        
-            var zoom = function(chart_r){
-                
-                xyScale = d3.scale.linear()
-                        .domain([-chart_r, chart_r])
-                        .range([pad, width-pad]);
-                rScale = d3.scale.linear()
-                        .domain([0, chart_r])
-                        .range([0, (width-2*pad)/2]); 
-                
-                svg.selectAll('.r')
-                         .transition()
-                         .attr('cx',Rcx)
-                         .attr('cy',Rcy)
-                         .attr('r',Rr);
-                svg.selectAll('.x')
-                         .transition()
-                         .attr('cx',Xcx)
-                         .attr('cy',Xcy)
-                         .attr('r',Xr);
-                
-                }
-            
-           
-				
-
-			
-                
-                
-            </script>
+            chart = new smith.chart()
+            //s = new smith()
+            chart.radius = 3
+            chart.draw(svg)
+        </script>
     </body>
 </html>
